@@ -112,7 +112,7 @@ function finishQuiz(){
 
 // Fonction pour envoyer à Google Sheets
 function sendResultToSheet(prenom, profil){
-  fetch("https://script.google.com/macros/s/AKfycbxo-yQb73TUcN-vG4cDRLTIEA53KX6kih8XafcGPQMDCAFAu8nMcziu_l7-5oc0s1gn/exec", {
+  fetch("https://script.google.com/macros/s/AKfycby6n_5T0D5x8_hylk6dJS_u4BdI52Sba5ujEQQH-QfIFsTsG7Z4YHJzSP5KmoJBaIM5/exec", {
     method:"POST",
     body: JSON.stringify({prenom: prenom, profil: profil})
   })
@@ -123,3 +123,4 @@ function sendResultToSheet(prenom, profil){
 </script>
 </body>
 </html>
+
