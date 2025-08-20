@@ -112,19 +112,38 @@ function finishQuiz(){
 
 // Fonction pour envoyer à Google Sheets
 function sendResultToSheet(prenom, profil) {
-  fetch("https://script.google.com/macros/s/AKfycbxcO1bNLFetNDv4jDb8IDb2CLLY3oxzZ2KEey4mPpOQ0klVkM1JMnlOpeHL44zIhGM/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbw25dZ02KYrwBPB68XN5EROAYqeF3t5fCQsOFN_OkCO11SB8xr7nEeZIIwEStvXgH7X/exec", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify({ prenom: prenom, profil: profil })
+    body: JSON.stringify({ prenom: prenom, profil: profil }),
   })
-  .then(res => res.json())
-  .then(data => console.log("Résultat enregistré :", data))
-  .catch(err => console.error("Erreur lors de l'envoi :", err));
+  .then(response => response.text()) // on récupère du texte brut
+  .then(text => {
+    console.log("Réponse brute:", text);
+    try {
+      const json = JSON.parse(text); // tentative de parsing JSON
+      console.log("Réponse JSON:", json);
+      if (json.status === "ok") {
+        alert("✅ Résultat bien enregistré !");
+      } else {
+        alert("❌ Erreur côté serveur : " + json.message);
+      }
+    } catch (err) {
+      console.error("Impossible de parser la réponse :", err, text);
+      alert("⚠️ La réponse du serveur est bizarre, regarde la console.");
+    }
+  })
+  .catch(error => {
+    console.error("Erreur lors de l'envoi :", error);
+    alert("❌ Impossible d’envoyer les résultats.");
+  });
 }
+
 </script>
 </body>
 </html>
+
 
 
