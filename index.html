@@ -2,148 +2,107 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Quelle dérive thérapeutique es-tu ?</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  body { font-family: Arial, sans-serif; background: #f3f0f8; color: #333; display: flex; justify-content: center; padding: 20px; }
-  .container { max-width: 600px; width: 100%; background: #fff; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); padding: 30px; }
-  h1 { text-align: center; color: #6a0dad; }
-  button { background: #6a0dad; color: #fff; border: none; padding: 10px 20px; margin-top: 10px; cursor: pointer; border-radius: 8px; }
-  button:hover { background: #5809a0; }
-  .progress-container { width: 100%; background: #ddd; border-radius: 20px; margin: 15px 0; }
-  .progress-bar { width: 0%; height: 20px; background: #6a0dad; border-radius: 20px; transition: width 0.3s; }
-  .question { margin-top: 20px; }
-  .answers button { display: block; width: 100%; margin: 8px 0; text-align: left; }
+body { font-family: 'Montserrat', sans-serif; background: #f4f0fa; padding: 20px; }
+.container { max-width: 700px; margin: auto; background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.1);}
+h1 { text-align: center; color: #6a0dad; margin-bottom: 20px; }
+.progress-container { background: #eee; border-radius: 10px; height: 15px; margin-bottom: 25px; overflow: hidden; }
+.progress-bar { background: #6a0dad; height: 100%; width: 0%; transition: width 0.5s; }
+.question { margin-bottom: 25px; opacity: 0; transform: translateY(20px); transition: all 0.5s; }
+.question.show { opacity: 1; transform: translateY(0); }
+button { display: flex; align-items: center; gap: 10px; margin: 10px 0; padding: 12px; width: 100%; border: none; border-radius: 12px; background: #9b59b6; color: #fff; cursor: pointer; font-size: 16px; transition: all 0.3s ease;}
+button:hover { background: #6a0dad; transform: translateY(-2px) scale(1.03); box-shadow: 0 4px 12px rgba(0,0,0,0.15);}
+button img { width: 24px; height: 24px; }
+#result { text-align: center; margin-top: 30px; opacity: 0; transition: all 1s; }
+#result.show { opacity: 1; }
+#result img { max-width: 180px; margin-top: 15px; border-radius: 15px; box-shadow: 0 6px 15px rgba(0,0,0,0.1);}
 </style>
 </head>
 <body>
 <div class="container">
   <h1>Quelle dérive thérapeutique es-tu ?</h1>
-  
-  <!-- Entrée prénom -->
-  <div id="name-entry">
-    <label for="username">Entre ton prénom :</label>
-    <input type="text" id="username" placeholder="Ex: Alice">
-    <button onclick="startQuiz()">Commencer</button>
-  </div>
-
-  <!-- Barre de progression -->
-  <div class="progress-container" style="display:none;">
-    <div class="progress-bar" id="progress-bar"></div>
-  </div>
-
-  <!-- Quiz -->
+  <div class="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
   <div id="quiz"></div>
+  <div id="result"></div>
 </div>
 
 <script>
-// Profils
-const profiles = {
-  "Lithothérapie" : {desc:"Tu crois que des cailloux peuvent résoudre tous tes problèmes. Si une pierre ne marche pas, une autre, plus chère, fera l'affaire…"},
-  "Chromathérapie" : {desc:"Tu vois la vie en couleurs… trop, peut-être. Une couleur pour chaque humeur, mais attention aux arc-en-ciels incontrôlés !"},
-  "Ostéopathie" : {desc:"Tu penses qu’on peut tout remettre en place en tordant un bras ou en massant le dos. Tu dois avoir des potes qui te supplient d'arrêter..."},
-  "Aromathérapie" : {desc:"Pour toi, un diffuseur d’huiles essentielles est plus important qu’un médecin. Tu peux transformer n’importe quelle pièce en parfumerie ambulante…"}
-};
-
-// Questions évasives
 const questions = [
-  {q:"Quel sens utilises-tu le plus ?", a:["Vue","Ouïe","Toucher","Odorat"]},
-  {q:"Quelle était ta matière préférée à l'école ?", a:["Mathématiques","Arts plastiques","Sport","Musique"]},
-  {q:"Quelle activité te détend le plus ?", a:["Lecture","Danse","Yoga","Cuisine"]},
-  {q:"Quel type de vacances préfères-tu ?", a:["Montagne","Plage","Ville","Campagne"]},
-  {q:"Quel animal représente le mieux ta personnalité ?", a:["Chat","Chien","Oiseau","Poisson"]}
+  {q: "Quel sens utilises-tu le plus ?", a:["Toucher","Vue","Mouvement","Prise de conscience intérieure"], p:["Lithotherapie","Chromathérapie","Osteopathie","Aromatherapie"], i:["https://img.icons8.com/ios-filled/50/ffffff/hand.png","https://img.icons8.com/ios-filled/50/ffffff/eye.png","https://img.icons8.com/ios-filled/50/ffffff/running.png","https://img.icons8.com/ios-filled/50/ffffff/meditation.png"]},
+  {q: "Quelle était ta matière préférée à l'école ?", a:["Sciences naturelles","Arts plastiques","Éducation physique","Lecture ou écriture"], p:["Lithotherapie","Chromathérapie","Osteopathie","Aromatherapie"], i:["https://img.icons8.com/ios-filled/50/ffffff/plant.png","https://img.icons8.com/ios-filled/50/ffffff/paint-palette.png","https://img.icons8.com/ios-filled/50/ffffff/gym.png","https://img.icons8.com/ios-filled/50/ffffff/book.png"]},
+  {q: "Ton type de promenade préféré ?", a:["En pleine nature","Dans un musée ou lieu coloré","Sportive et active","Tranquille, à ton rythme"], p:["Lithotherapie","Chromathérapie","Osteopathie","Aromatherapie"], i:["https://img.icons8.com/ios-filled/50/ffffff/trees.png","https://img.icons8.com/ios-filled/50/ffffff/museum.png","https://img.icons8.com/ios-filled/50/ffffff/hiking.png","https://img.icons8.com/ios-filled/50/ffffff/sofa.png"]},
+  {q: "Ton style de décoration préféré ?", a:["Naturel et épuré","Coloré et pétillant","Pratique et ergonomique","Cosy et réconfortant"], p:["Lithotherapie","Chromathérapie","Osteopathie","Aromatherapie"], i:["https://img.icons8.com/ios-filled/50/ffffff/wood.png","https://img.icons8.com/ios-filled/50/ffffff/colors.png","https://img.icons8.com/ios-filled/50/ffffff/chair.png","https://img.icons8.com/ios-filled/50/ffffff/cushion.png"]},
+  {q: "Quand tu te sens fatigué(e), que fais-tu ?", a:["Méditer ou rester au calme","Regarder des couleurs et motifs","Bouger ou faire de l’exercice","Te détendre avec confort"], p:["Lithotherapie","Chromathérapie","Osteopathie","Aromatherapie"], i:["https://img.icons8.com/ios-filled/50/ffffff/meditation.png","https://img.icons8.com/ios-filled/50/ffffff/palette.png","https://img.icons8.com/ios-filled/50/ffffff/running.png","https://img.icons8.com/ios-filled/50/ffffff/sofa.png"]}
 ];
 
-// Scores
-let scores = { "Lithothérapie":0, "Chromathérapie":0, "Ostéopathie":0, "Aromathérapie":0 };
-let current = 0;
-let username = "";
+const profiles = {
+  "Lithotherapie": {
+    desc:"💎 Obsédé(e) par les pierres et cristaux. Tu crois qu’un quartz rose peut guérir un cœur brisé, et un œil de tigre calmer ton patron. Ta maison ressemble à un magasin ésotérique et ton hamster semble plus zen grâce à ton améthyste sous sa cage. Bref, tu considères que les cailloux ont plus de sagesse que la plupart des humains.",
+    img:"https://via.placeholder.com/180/8e44ad/ffffff?text=Lithothérapie"
+  },
+  "Chromathérapie": {
+    desc:"🌈 Les couleurs dirigent ta vie. Ton salon ressemble à un carnaval permanent et tu es convaincu(e) que le vert fluo peut résoudre les conflits familiaux. Tes amis te regardent comme un extraterrestre quand tu décrètes que chaque émotion a son pantone. Bref, tu vis dans un monde arc-en-ciel où le bon goût est optionnel.",
+    img:"https://via.placeholder.com/180/e74c3c/ffffff?text=Chromathérapie"
+  },
+  "Osteopathie": {
+    desc:"🦴 Chaque problème peut se régler par un ajustement du corps. Les chiropracteurs t’adorent, tes amis te redoutent, et tu as sûrement tenté de réaligner la colonne de ton chat. Tu crois que le monde serait parfait si tout le monde faisait 3 manipulations par jour. Bref, tu penses que ton expertise osseuse vaut mieux que la science et le bon sens.",
+    img:"https://via.placeholder.com/180/27ae60/ffffff?text=Ostéopathie"
+  },
+  "Aromatherapie": {
+    desc:"🌿 Tu vis dans un nuage de senteurs. Chaque problème a sa fiole : rhume, tristesse, conflits internationaux… tout se résout avec une huile essentielle. Ton placard ressemble à une parfumerie exotique et tes amis toussent un peu en entrant chez toi. Bref, tu crois que l’odeur de la solution est toujours plus efficace que la solution elle-même.",
+    img:"https://via.placeholder.com/180/f39c12/ffffff?text=Aromatherapie"
+  }
+};
 
-// Commencer quiz
-function startQuiz(){
-  const input = document.getElementById("username").value.trim();
-  if(input === ""){ alert("Merci d'entrer ton prénom !"); return; }
-  username = input;
-  document.getElementById("name-entry").style.display = "none";
-  document.querySelector(".progress-container").style.display = "block";
-  showQuestion();
+let current = 0;
+let scores = {"Lithotherapie":0,"Chromathérapie":0,"Osteopathie":0,"Aromatherapie":0};
+
+function updateProgress(){
+  const progress = ((current)/questions.length)*100;
+  document.getElementById("progress-bar").style.width = progress + "%";
 }
 
-// Affichage question
-function showQuestion(){
-  if(current >= questions.length){ finishQuiz(); return; }
+function showQuestion() {
+  if(current >= questions.length){
+    showResult();
+    return;
+  }
   updateProgress();
   const q = questions[current];
-  let html = `<div class="question"><h3>${q.q}</h3><div class="answers">`;
+  let html = `<div class="question show"><h2>${q.q}</h2>`;
   q.a.forEach((ans,i)=>{
-    html += `<button onclick="answer(${i})">${ans}</button>`;
+    html += `<button onclick="selectAnswer('${q.p[i]}')"><img src="${q.i[i]}" alt=""><span>${ans}</span></button>`;
   });
-  html += "</div></div>";
+  html += "</div>";
   document.getElementById("quiz").innerHTML = html;
 }
 
-// Répondre
-function answer(index){
-  // Répartition aléatoire des réponses vers les profils pour garder le côté surprise
-  const keys = Object.keys(profiles);
-  scores[keys[index%4]] += 1;
+function selectAnswer(profile){
+  scores[profile]++;
   current++;
-  showQuestion();
+  const questionDiv = document.querySelector('.question');
+  questionDiv.classList.remove('show');
+  setTimeout(showQuestion, 300);
 }
 
-// Barre de progression
-function updateProgress(){
-  const percent = Math.round((current/questions.length)*100);
-  document.getElementById("progress-bar").style.width = percent + "%";
+function showResult(){
+  updateProgress();
+  let max = 0;
+  let resultProfile = "";
+  for(let key in scores){
+    if(scores[key] > max){ max = scores[key]; resultProfile = key; }
+  }
+  document.getElementById("quiz").innerHTML = "";
+  const resultDiv = document.getElementById("result");
+  resultDiv.innerHTML = `<h2>Ton profil : ${resultProfile}</h2>
+  <p>${profiles[resultProfile].desc}</p>
+  <img src="${profiles[resultProfile].img}" alt="${resultProfile}">`;
+  setTimeout(()=>{resultDiv.classList.add('show');}, 200);
 }
 
-// Fin quiz
-function finishQuiz(){
-  let max = 0, resultProfile = "";
-  for(let key in scores){ if(scores[key] > max){ max = scores[key]; resultProfile = key; } }
-
-  // Envoyer résultat à Google Sheets
-  sendResultToSheet(username, resultProfile);
-
-  // Affichage minimal pour garder la surprise
-  document.getElementById("quiz").innerHTML = "<h2>Merci pour ta participation !</h2><p>Les résultats seront révélés à la fin du week-end.</p>";
-  document.querySelector(".progress-container").style.display = "none";
-}
-
-// Fonction pour envoyer à Google Sheets
-function sendResultToSheet(prenom, profil) {
-  fetch("https://script.google.com/macros/s/AKfycbw25dZ02KYrwBPB68XN5EROAYqeF3t5fCQsOFN_OkCO11SB8xr7nEeZIIwEStvXgH7X/exec", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ prenom: prenom, profil: profil }),
-  })
-  .then(response => response.text()) // on récupère du texte brut
-  .then(text => {
-    console.log("Réponse brute:", text);
-    try {
-      const json = JSON.parse(text); // tentative de parsing JSON
-      console.log("Réponse JSON:", json);
-      if (json.status === "ok") {
-        alert("✅ Résultat bien enregistré !");
-      } else {
-        alert("❌ Erreur côté serveur : " + json.message);
-      }
-    } catch (err) {
-      console.error("Impossible de parser la réponse :", err, text);
-      alert("⚠️ La réponse du serveur est bizarre, regarde la console.");
-    }
-  })
-  .catch(error => {
-    console.error("Erreur lors de l'envoi :", error);
-    alert("❌ Impossible d’envoyer les résultats.");
-  });
-}
-
+showQuestion();
 </script>
 </body>
 </html>
-
-
-
